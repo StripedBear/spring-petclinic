@@ -23,13 +23,31 @@ jobs:
 
       - name: Build and test with Maven
         run: mvn -B clean verify
-
+      
+      # Docker
       - name: Build Docker image
-        run: docker build -t cr.yandex/crp8nu6sshurc917bput/my-registry/spring-petclinic .
+        run: docker build -t cr.yandex/${{ env.YC_REGION }}/${{ env.YC_REGISTRY }}/spring-petclinic .
 
       - name: Push Docker image
         env:
           YC_TOKEN: ${{ secrets.YC_TOKEN }}
         run: |
           echo $YC_TOKEN | docker login -u oauth --password-stdin cr.yandex
-          docker push cr.yandex/crp8nu6sshurc917bput/my-registry/spring-petclinic .
+          docker push cr.yandex/${{ env.YC_REGION }}/${{ env.YC_REGISTRY }}/spring-petclinic .
+
+      # Kubernetes
+      - name: Install kubectl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kubectl
+
+      - name: Configure kubectl
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}  # Secret fot Yandex Cloud
+        run: |
+          yc managed-kubernetes cluster get-credentials ${{ env.CLUSTER_NAME }} --external
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
