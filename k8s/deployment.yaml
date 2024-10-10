@@ -15,5 +15,6 @@ spec:
       containers:
       - name: spring-petclinic
         image: cr.yandex/crp8nu6sshurc917bput/my-registry/spring-petclinic
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
