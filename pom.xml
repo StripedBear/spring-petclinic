@@ -137,7 +137,12 @@
 
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
+      <artifactId>jakarta.xml.bind-api</artifactId>    
+    </dependency>
+    
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
 
   </dependencies>
