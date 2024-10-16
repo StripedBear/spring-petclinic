@@ -1,25 +1,59 @@
+version: '3.8'
+
 services:
+  # MySQL database
   mysql:
     image: mysql:9.0
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
-      - MYSQL_USER=petclinic
-      - MYSQL_PASSWORD=petclinic
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=petclinic
     volumes:
       - "./conf.d:/etc/mysql/conf.d:ro"
     profiles:
       - mysql
+    networks:
+      - monitoring
+
+  # PostgreSQL database
   postgres:
     image: postgres:17.0
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=petclinic
-      - POSTGRES_USER=petclinic
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=petclinic
     profiles:
       - postgres
+    networks:
+      - monitoring
+
+  # Graylog
+  graylog:
+    image: graylog/graylog:4.1
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=${GRAYLOG_PASSWORD_SECRET}
+      - GRAYLOG_ROOT_PASSWORD_SHA2=${GRAYLOG_ROOT_PASSWORD_SHA2}
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
+    depends_on:
+      - mongodb
+    ports:
+      - "9000:9000"  # Доступ к веб-интерфейсу Graylog
+      - "12201:12201/udp"  # Порт для приема GELF сообщений (логов)
+    networks:
+      - monitoring
+
+  # MongoDB (Graylog)
+  mongodb:
+    image: mongo:4.2
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
