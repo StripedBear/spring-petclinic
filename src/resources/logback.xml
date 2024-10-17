@@ -1,0 +1,15 @@
+<configuration>
+    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <host>udp:${GRAYLOG_HOST}</host> 
+        <port>${GRAYLOG_PORT:-12201}</port>
+        <includeFullMdc>true</includeFullMdc>
+        <facility>spring-petclinic</facility>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>  <!-- Отправляем только логи уровня INFO и выше -->
+        </filter>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="GELF"/>
+    </root>
+</configuration>

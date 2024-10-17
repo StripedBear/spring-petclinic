@@ -33,6 +33,7 @@ jobs:
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          GRAYLOG_HOST: ${{ secrets.GRAYLOG_HOST }}          
           GRAYLOG_PASSWORD_SECRET: ${{ secrets.GRAYLOG_PASSWORD_SECRET }}
           GRAYLOG_ROOT_PASSWORD_SHA2: ${{ secrets.GRAYLOG_ROOT_PASSWORD_SHA2 }}
         run: docker build -t cr.yandex/${{ secrets.YC_REGION }}/${{ secrets.YC_REGISTRY }}/spring-petclinic .

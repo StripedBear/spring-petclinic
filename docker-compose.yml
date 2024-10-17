@@ -40,6 +40,8 @@ services:
       - GRAYLOG_PASSWORD_SECRET=${GRAYLOG_PASSWORD_SECRET}
       - GRAYLOG_ROOT_PASSWORD_SHA2=${GRAYLOG_ROOT_PASSWORD_SHA2}
       - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
+      - GRAYLOG_HOST=${GRAYLOG_HOST}  # Используем переменную окружения для хоста
+      - GRAYLOG_PORT=${GRAYLOG_PORT:-12201}
     depends_on:
       - mongodb
     ports:
