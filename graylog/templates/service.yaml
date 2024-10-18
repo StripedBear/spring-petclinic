@@ -9,9 +9,11 @@ spec:
   selector:
     app: graylog
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: 9000
-    - protocol: UDP
+    - name: gelf
+      protocol: UDP
       port: {{ .Values.service.gelfPort }}
       targetPort: 12201
