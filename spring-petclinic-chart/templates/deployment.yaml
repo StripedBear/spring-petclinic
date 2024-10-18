@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-spring-petclinic
+  labels:
+    app: {{ .Release.Name }}-spring-petclinic
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-spring-petclinic
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-spring-petclinic
+    spec:
+      containers:
+      - name: spring-petclinic
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+          - containerPort: 8080
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}

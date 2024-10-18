@@ -1,0 +1,21 @@
+replicaCount: 2
+
+image:
+  repository: cr.yandex/crp8nu6sshurc917bput/spring-petclinic
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+ingress:
+  enabled: false
