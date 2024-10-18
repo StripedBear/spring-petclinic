@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: graylog/graylog
+  tag: 4.1
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 9000
+  gelfPort: 12201
+
+mongodb:
+  enabled: true
+  image:
+    repository: mongo
+    tag: 4.2
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1024Mi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  size: 2Gi
+
+graylog:
+  passwordSecret: "{{ .Values.graylog.passwordSecret }}"
+  rootPasswordSha2: "{{ .Values.graylog.rootPasswordSha2 }}"
+  externalUri: "http://{{ .Release.Name }}-graylog:9000/"

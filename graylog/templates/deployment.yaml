@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-graylog
+  labels:
+    app: graylog
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: graylog
+  template:
+    metadata:
+      labels:
+        app: graylog
+    spec:
+      containers:
+        - name: graylog
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 9000
+            - containerPort: 12201
+          env:
+            - name: GRAYLOG_HTTP_EXTERNAL_URI
+              value: {{ .Values.graylog.externalUri }}
+            - name: GRAYLOG_PASSWORD_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-graylog-secret
+                  key: password_secret
+            - name: GRAYLOG_ROOT_PASSWORD_SHA2
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-graylog-secret
+                  key: root_password_sha2
+          volumeMounts:
+            - name: graylog-data
+              mountPath: /usr/share/graylog/data
+      volumes:
+        - name: graylog-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-graylog-pvc

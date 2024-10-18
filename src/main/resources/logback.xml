@@ -1,0 +1,15 @@
+<configuration>
+    <appender name="GRAYLOG" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>${GRAYLOG_HOST}</graylogHost>
+        <graylogPort>${GRAYLOG_PORT}</graylogPort>
+        <facility>spring-petclinic</facility>
+        <additionalField>app=spring-petclinic</additionalField>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="GRAYLOG" />
+    </root>
+</configuration>
