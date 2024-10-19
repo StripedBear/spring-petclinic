@@ -14,6 +14,6 @@ spec:
       port: {{ .Values.service.port }}
       targetPort: 9000
     - name: gelf
-      protocol: UDP
+      protocol: TCP
       port: {{ .Values.service.gelfPort }}
       targetPort: 12201

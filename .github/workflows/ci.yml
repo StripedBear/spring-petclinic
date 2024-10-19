@@ -33,7 +33,7 @@ jobs:
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          GRAYLOG_HOST: ${{ secrets.GRAYLOG_HOST }}          
+          GRAYLOG_HOST: ${{ secrets.GRAYLOG_HOST }}
           GRAYLOG_PASSWORD_SECRET: ${{ secrets.GRAYLOG_PASSWORD_SECRET }}
           GRAYLOG_ROOT_PASSWORD_SHA2: ${{ secrets.GRAYLOG_ROOT_PASSWORD_SHA2 }}
         run: docker build -t cr.yandex/${{ secrets.YC_REGION }}/${{ secrets.YC_REGISTRY }}/spring-petclinic .
@@ -45,19 +45,63 @@ jobs:
           YC_REGISTRY: ${{ secrets.YC_REGISTRY }}
         run: |
           echo $YC_TOKEN | docker login -u oauth --password-stdin cr.yandex
-          docker push cr.yandex/${{ secrets.YC_REGION }}/${{ secrets.YC_REGISTRY }}/spring-petclinic .
+          docker push cr.yandex/${{ secrets.YC_REGION }}/${{ secrets.YC_REGISTRY }}/spring-petclinic
 
-      - name: Install kubectl
+      - name: Install kubectl and Helm
         run: |
           sudo apt-get update
           sudo apt-get install -y kubectl
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
       - name: Configure kubectl
         env:
           YC_TOKEN: ${{ secrets.YC_TOKEN }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
         run: |
-          yc managed-kubernetes cluster get-credentials ${{ secrets.CLUSTER_NAME }} --external
+          yc managed-kubernetes cluster get-credentials ${{ secrets.CLUSTER_NAME }} --external --force
+
+      - name: Create ConfigMap for Prometheus
+        run: |
+          kubectl apply -f prometheus-configmap.yaml
+
+      - name: Create PersistentVolumeClaim for Graylog
+        run: |
+          kubectl apply -f graylog-pvc.yaml
+
+      - name: Create ConfigMap for Graylog
+        env:
+          GRAYLOG_PASSWORD_SECRET: ${{ secrets.GRAYLOG_PASSWORD_SECRET }}
+          GRAYLOG_ROOT_PASSWORD_SHA2: ${{ secrets.GRAYLOG_ROOT_PASSWORD_SHA2 }}
+        run: |
+          cat <<EOF | envsubst > graylog-config.yaml
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: graylog-config
+          data:
+            graylog.conf: |
+              is_master = true
+              password_secret = \$GRAYLOG_PASSWORD_SECRET
+              root_password_sha2 = \$GRAYLOG_ROOT_PASSWORD_SHA2
+              rest_listen_uri = http://0.0.0.0:9000/api/
+              web_listen_uri = http://0.0.0.0:9000/
+              mongodb_uri = mongodb://mongodb-service:27017/graylog
+          EOF
+          kubectl apply -f graylog-config.yaml
+
+      - name: Deploy Prometheus with Helm
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/prometheus --namespace default
+
+      - name: Deploy Graylog with Helm
+        run: |
+          helm upgrade --install graylog ./graylog --namespace default
+
+      - name: Deploy Spring Petclinic with Helm
+        run: |
+          helm upgrade --install spring-petclinic ./spring-petclinic-chart --namespace default
 
       - name: Apply Kubernetes manifests
         run: |
