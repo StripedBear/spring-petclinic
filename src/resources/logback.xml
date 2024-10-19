@@ -1,5 +1,5 @@
 <configuration>
-    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+    <appender name="GRAYLOG" class="de.siegmar.logbackgelf.GelfUdpAppender">
         <host>udp:${GRAYLOG_HOST}</host> 
         <port>${GRAYLOG_PORT:-12201}</port>
         <includeFullMdc>true</includeFullMdc>

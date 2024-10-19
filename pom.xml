@@ -180,7 +180,7 @@
       <plugin>
         <groupId>io.spring.javaformat</groupId>
         <artifactId>spring-javaformat-maven-plugin</artifactId>
-        <version>${spring-format.version}</version>
+        <version>[17,)</version>
         <executions>
           <execution>
             <phase>validate</phase>
